@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # CAPA 1: Base de Datos (MongoDB)
+  base-datos:
+    image: mongo:latest
+    container_name: mongodb-datos
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # CAPA 2: Lógica de Negocio (Tu servidor Node de Ventas)
+  servidor-app:
+    build: .
+    container_name: node-aplicacion
+    ports:
+      - "3000:3000"
+    depends_on:
+      - base-datos
+    environment:
+      - MONGO_URI=mongodb://base-datos:27017/mongodb-datos
+
+volumes:
+  mongo_data:
