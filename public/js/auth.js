@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('auth-btn');
   const toggle = document.getElementById('toggle-auth');
   const nameField = document.getElementById('name-field');
-  const rolField = document.getElementById('rol-field');
   const errorMsg = document.getElementById('error-msg');
 
   toggle.addEventListener('click', () => {
@@ -57,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.textContent = isRegister ? 'Registrarse' : 'Ingresar';
     toggle.textContent = isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate';
     nameField.classList.toggle('hidden', !isRegister);
-    rolField.classList.toggle('hidden', !isRegister);
     errorMsg.classList.add('hidden');
   });
 
@@ -70,10 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (isRegister) {
         const nombre = document.getElementById('reg-nombre').value;
-        const rol = document.getElementById('reg-rol').value;
         const data = await apiFetch('/auth/register', {
           method: 'POST',
-          body: JSON.stringify({ nombre, email, password, rol })
+          body: JSON.stringify({ nombre, email, password, rol: 'Cliente' })
         });
         guardarSesion(data.token, data.usuario);
       } else {

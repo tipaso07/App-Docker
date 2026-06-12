@@ -103,6 +103,19 @@ router.put('/:id/estado', verificarToken, verificarAdmin, async (req, res) => {
   }
 });
 
+router.put('/:id/repartidor', verificarToken, verificarAdmin, async (req, res) => {
+  try {
+    const { repartidorId } = req.body;
+    const pedido = await Pedido.findByIdAndUpdate(req.params.id, { repartidorId: repartidorId || null }, { new: true });
+    if (!pedido) return res.status(404).json({ error: 'Pedido no encontrado' });
+    const io = req.app.get('io');
+    io.emit('estado_pedido_actualizado', pedido);
+    res.json(pedido);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.put('/:id/entregar', verificarToken, async (req, res) => {
   try {
     const pedido = await Pedido.findById(req.params.id);

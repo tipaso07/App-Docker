@@ -1,4 +1,3 @@
-// ---- Sidebar ----
 document.querySelectorAll('.sidebar a[data-section]').forEach(a => {
   a.addEventListener('click', () => {
     document.querySelectorAll('.sidebar a').forEach(x => x.classList.remove('active'));
@@ -8,7 +7,6 @@ document.querySelectorAll('.sidebar a[data-section]').forEach(a => {
   });
 });
 
-// ---- Toast ----
 function mostrarToast(mensaje, tipo = 'success') {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -18,47 +16,74 @@ function mostrarToast(mensaje, tipo = 'success') {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// ---- Modal util ----
 function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 // ---- PEDIDOS ----
+let todosPedidos = [];
+
 async function cargarPedidos() {
-  const pedidos = await apiFetch('/pedidos');
+  todosPedidos = await apiFetch('/pedidos');
   const tbody = document.getElementById('pedidos-tbody');
-  tbody.innerHTML = pedidos.map(p => {
-    let btnHtml = '';
-    if (p.estado === 'Pendiente') {
-      btnHtml = `<button class="btn-estado pendiente" onclick="cambiarEstado('${p._id}','En Camino')">→ En Camino</button>`;
-    } else if (p.estado === 'En Camino') {
-      btnHtml = `<button class="btn-estado en-camino" onclick="cambiarEstado('${p._id}','Entregado')">→ Entregado</button>`;
-    } else if (p.estado === 'Entregado') {
-      btnHtml = `<button class="btn-estado entregado" disabled>✓ Entregado</button>`;
-    } else {
-      btnHtml = `<span style="color:#a0aec0;font-size:13px;">${p.estado}</span>`;
-    }
-    return `
-      <tr>
-        <td>${p.boleta.numeroBoleta}</td>
-        <td>${p.clienteId?.nombre || 'N/A'}</td>
-        <td>${p.repartidorId?.nombre || 'Sin asignar'}</td>
-        <td>S/. ${p.boleta.montoTotal.toFixed(2)}</td>
-        <td>${p.metodoPago}</td>
-        <td>${new Date(p.fecha).toLocaleDateString()}</td>
-        <td class="estado-${p.estado.replace(/\s/g, '\\ ')}">${p.estado}</td>
-        <td>${btnHtml}</td>
-      </tr>
-    `;
-  }).join('');
+  tbody.innerHTML = todosPedidos.map(p => `
+    <tr>
+      <td>${p.boleta.numeroBoleta}</td>
+      <td>${p.clienteId?.nombre || 'N/A'}</td>
+      <td>${p.repartidorId?.nombre || 'Sin asignar'}</td>
+      <td>S/. ${p.boleta.montoTotal.toFixed(2)}</td>
+      <td>${p.metodoPago}</td>
+      <td>${new Date(p.fecha).toLocaleDateString()}</td>
+      <td class="estado-${p.estado.replace(/\s/g, '\\ ')}">${p.estado}</td>
+      <td><button onclick='abrirEditarPedido("${p._id}")'>Editar</button></td>
+    </tr>
+  `).join('');
 }
 
-async function cambiarEstado(id, nuevoEstado) {
+async function abrirEditarPedido(id) {
+  const pedido = todosPedidos.find(p => p._id === id);
+  if (!pedido) return;
+
+  document.getElementById('edit-pedido-id').value = id;
+  document.getElementById('edit-pedido-titulo').textContent = `Pedido: ${pedido.boleta.numeroBoleta}`;
+  document.getElementById('edit-pedido-boleta').textContent = `Cliente: ${pedido.clienteId?.nombre || 'N/A'} | ${pedido.direccionEntrega} | ${pedido.metodoPago}`;
+  document.getElementById('edit-pedido-productos').innerHTML = pedido.boleta.productos.map(pr => `
+    <tr><td>${pr.nombre}</td><td>${pr.cantidad}</td><td>S/. ${pr.precioUnitario.toFixed(2)}</td><td>S/. ${pr.subtotal.toFixed(2)}</td></tr>
+  `).join('');
+  document.getElementById('edit-pedido-subtotal').textContent = pedido.boleta.montoGrabado.toFixed(2);
+  document.getElementById('edit-pedido-igv').textContent = pedido.boleta.igv.toFixed(2);
+  document.getElementById('edit-pedido-total').textContent = pedido.boleta.montoTotal.toFixed(2);
+  document.getElementById('edit-pedido-estado').value = pedido.estado;
+
+  // Cargar repartidores en el select
+  const repSelect = document.getElementById('edit-pedido-repartidor');
+  const usuarios = await apiFetch('/usuarios');
+  const repartidores = usuarios.filter(u => u.rol === 'Repartidor');
+  repSelect.innerHTML = '<option value="">Sin asignar</option>' +
+    repartidores.map(r => `<option value="${r._id}">${r.nombre}</option>`).join('');
+  repSelect.value = pedido.repartidorId?._id || '';
+
+  abrirModal('modal-editar-pedido');
+}
+
+document.getElementById('btn-guardar-pedido').addEventListener('click', async () => {
+  const id = document.getElementById('edit-pedido-id').value;
+  const estado = document.getElementById('edit-pedido-estado').value;
+  const repartidorId = document.getElementById('edit-pedido-repartidor').value;
+
   await apiFetch(`/pedidos/${id}/estado`, {
     method: 'PUT',
-    body: JSON.stringify({ estado: nuevoEstado })
+    body: JSON.stringify({ estado })
   });
+
+  await apiFetch(`/pedidos/${id}/repartidor`, {
+    method: 'PUT',
+    body: JSON.stringify({ repartidorId })
+  });
+
+  cerrarModal('modal-editar-pedido');
+  mostrarToast('Pedido actualizado', 'success');
   cargarPedidos();
-}
+});
 
 // ---- INVENTARIO ----
 async function cargarProductos() {
@@ -172,6 +197,24 @@ document.getElementById('btn-guardar-usuario').addEventListener('click', async (
 
   await apiFetch(`/usuarios/${id}`, { method: 'PUT', body: JSON.stringify(data) });
   cerrarModal('modal-editar-usuario');
+  cargarUsuarios();
+});
+
+document.getElementById('btn-guardar-nuevo-usuario').addEventListener('click', async () => {
+  const nombre = document.getElementById('add-user-nombre').value;
+  const email = document.getElementById('add-user-email').value;
+  const password = document.getElementById('add-user-password').value;
+  const rol = document.getElementById('add-user-rol').value;
+  if (!nombre || !email || !password) return mostrarToast('Completa todos los campos', 'error');
+  await apiFetch('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ nombre, email, password, rol })
+  });
+  cerrarModal('modal-agregar-usuario');
+  document.getElementById('add-user-nombre').value = '';
+  document.getElementById('add-user-email').value = '';
+  document.getElementById('add-user-password').value = '';
+  mostrarToast('Usuario creado', 'success');
   cargarUsuarios();
 });
 

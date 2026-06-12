@@ -45,6 +45,7 @@
       <!-- USUARIOS -->
       <div class="section" id="sec-usuarios">
         <h1>Gestión de Usuarios</h1>
+        <button class="btn-agregar-usuario" style="padding:10px 20px;background:#38a169;color:#fff;border:none;border-radius:8px;cursor:pointer;margin-bottom:16px;font-size:14px;" onclick="abrirModal('modal-agregar-usuario')">+ Agregar Usuario</button>
         <table>
           <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Registro</th><th>Acciones</th></tr></thead>
           <tbody id="usuarios-tbody"></tbody>
@@ -75,6 +76,65 @@
       <div class="modal-actions">
         <button class="btn-secondary" onclick="cerrarModal('modal-editar-usuario')">Cancelar</button>
         <button class="btn-primary" id="btn-guardar-usuario">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal agregar usuario -->
+  <div class="modal-overlay hidden" id="modal-agregar-usuario">
+    <div class="modal">
+      <h2>Agregar Usuario</h2>
+      <label>Nombre</label>
+      <input type="text" id="add-user-nombre">
+      <label>Email</label>
+      <input type="email" id="add-user-email">
+      <label>Contraseña</label>
+      <input type="password" id="add-user-password">
+      <label>Rol</label>
+      <select id="add-user-rol">
+        <option value="Cliente">Cliente</option>
+        <option value="Repartidor">Repartidor</option>
+        <option value="Admin">Administrador</option>
+      </select>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModal('modal-agregar-usuario')">Cancelar</button>
+        <button class="btn-primary" id="btn-guardar-nuevo-usuario">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal editar pedido -->
+  <div class="modal-overlay hidden" id="modal-editar-pedido">
+    <div class="modal">
+      <h2 id="edit-pedido-titulo">Editar Pedido</h2>
+      <input type="hidden" id="edit-pedido-id">
+      <h3>Detalle de Boleta</h3>
+      <p id="edit-pedido-boleta" style="font-size:14px;color:#4a5568;"></p>
+      <div class="detalle-productos">
+        <table>
+          <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr></thead>
+          <tbody id="edit-pedido-productos"></tbody>
+        </table>
+      </div>
+      <div class="detalle-totales" style="margin-bottom:16px;">
+        <div>Subtotal: S/. <span id="edit-pedido-subtotal">0.00</span></div>
+        <div>IGV: S/. <span id="edit-pedido-igv">0.00</span></div>
+        <div><strong>Total: S/. <span id="edit-pedido-total">0.00</span></strong></div>
+      </div>
+      <label>Estado</label>
+      <select id="edit-pedido-estado">
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Camino">En Camino</option>
+        <option value="Entregado">Entregado</option>
+        <option value="Cancelado">Cancelado</option>
+      </select>
+      <label>Repartidor asignado</label>
+      <select id="edit-pedido-repartidor">
+        <option value="">Sin asignar</option>
+      </select>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModal('modal-editar-pedido')">Cancelar</button>
+        <button class="btn-primary" id="btn-guardar-pedido">Guardar Cambios</button>
       </div>
     </div>
   </div>
