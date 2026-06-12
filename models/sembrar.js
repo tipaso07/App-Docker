@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Producto = require('./Producto');
 
-const MONGO_URI = 'mongodb://localhost:27017/mongodb-datos';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mongodb-datos';
 
 // === DICCIONARIO DE DATOS REALES PARA COMBINACIÓN ===
 const marcas = ["Sony", "Apple", "Logitech", "Samsung", "Xiaomi", "JBL", "Asus", "Lenovo", "Philips", "Kingston"];
