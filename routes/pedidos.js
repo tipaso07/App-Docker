@@ -128,7 +128,7 @@ router.put('/:id/entregar', verificarToken, async (req, res) => {
   try {
     const pedido = await Pedido.findById(req.params.id);
     if (!pedido) return res.status(404).json({ error: 'Pedido no encontrado' });
-    if (pedido.repartidorId !== req.usuario.id) return res.status(403).json({ error: 'No eres el repartidor asignado' });
+    if (pedido.repartidorId.toString() !== req.usuario.id) return res.status(403).json({ error: 'No eres el repartidor asignado' });
     if (pedido.estado !== 'En Camino') return res.status(400).json({ error: 'El pedido debe estar en En Camino' });
     pedido.estado = 'Entregado';
     await pedido.save();
