@@ -34,21 +34,6 @@ router.post('/', verificarToken, async (req, res) => {
       boleta: { numeroBoleta, productos: productosProcesados, montoGrabado: Number(totalGeneral.toFixed(2)), igv, montoTotal }
     });
 
-    // Auto-asignar repartidor con menos pedidos activos
-    const repartidores = await Usuario.find({ rol: 'Repartidor' });
-    if (repartidores.length > 0) {
-      let mejorRep = null;
-      let menorCarga = Infinity;
-      for (const rep of repartidores) {
-        const count = await Pedido.countDocuments({
-          repartidorId: rep._id,
-          estado: { $in: ['Pendiente', 'En Camino'] }
-        });
-        if (count < menorCarga) { menorCarga = count; mejorRep = rep._id; }
-      }
-      if (mejorRep) nuevoPedido.repartidorId = mejorRep;
-    }
-
     const pedidoGuardado = await nuevoPedido.save();
 
     // Actualizar historial del cliente
@@ -69,7 +54,7 @@ router.get('/', verificarToken, async (req, res) => {
     if (req.usuario.rol === 'Admin') {
       pedidos = await Pedido.find().populate('clienteId', 'nombre email').populate('repartidorId', 'nombre').sort({ fecha: -1 });
     } else {
-      pedidos = await Pedido.find({ clienteId: req.usuario.id }).sort({ fecha: -1 });
+      pedidos = await Pedido.find({ clienteId: req.usuario.id }).populate('repartidorId', 'nombre').sort({ fecha: -1 });
     }
     res.json(pedidos);
   } catch (err) {
@@ -93,7 +78,30 @@ router.get('/entregas', verificarToken, async (req, res) => {
 router.put('/:id/estado', verificarToken, verificarAdmin, async (req, res) => {
   try {
     const { estado } = req.body;
-    const pedido = await Pedido.findByIdAndUpdate(req.params.id, { estado }, { new: true });
+    let update = { estado };
+
+    // Si pasa a "En Camino" y no tiene repartidor, asignar el que menos carga tenga
+    if (estado === 'En Camino') {
+      const pedidoActual = await Pedido.findById(req.params.id);
+      if (!pedidoActual) return res.status(404).json({ error: 'Pedido no encontrado' });
+      if (!pedidoActual.repartidorId) {
+        const repartidores = await Usuario.find({ rol: 'Repartidor' });
+        if (repartidores.length > 0) {
+          let mejorRep = null;
+          let menorCarga = Infinity;
+          for (const rep of repartidores) {
+            const count = await Pedido.countDocuments({
+              repartidorId: rep._id,
+              estado: { $in: ['Pendiente', 'En Camino'] }
+            });
+            if (count < menorCarga) { menorCarga = count; mejorRep = rep._id; }
+          }
+          if (mejorRep) update.repartidorId = mejorRep;
+        }
+      }
+    }
+
+    const pedido = await Pedido.findByIdAndUpdate(req.params.id, update, { new: true });
     if (!pedido) return res.status(404).json({ error: 'Pedido no encontrado' });
     const io = req.app.get('io');
     io.emit('estado_pedido_actualizado', pedido);

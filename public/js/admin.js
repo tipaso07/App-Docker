@@ -105,14 +105,14 @@ async function cargarProductos() {
 
   document.querySelectorAll('.btn-editar-prod').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.getElementById('prod-nombre').value = btn.dataset.nombre;
-      document.getElementById('prod-precio').value = btn.dataset.precio;
-      document.getElementById('prod-stock').value = btn.dataset.stock;
-      document.getElementById('prod-categoria').value = btn.dataset.categoria;
-      document.getElementById('prod-valoracion').value = btn.dataset.valoracion;
-      document.getElementById('prod-descripcion').value = btn.dataset.descripcion;
-      document.getElementById('btn-guardar-producto').textContent = 'Actualizar';
-      document.getElementById('btn-guardar-producto').dataset.editId = btn.dataset.id;
+      document.getElementById('edit-prod-id').value = btn.dataset.id;
+      document.getElementById('edit-prod-nombre').value = btn.dataset.nombre;
+      document.getElementById('edit-prod-precio').value = btn.dataset.precio;
+      document.getElementById('edit-prod-stock').value = btn.dataset.stock;
+      document.getElementById('edit-prod-categoria').value = btn.dataset.categoria;
+      document.getElementById('edit-prod-valoracion').value = btn.dataset.valoracion;
+      document.getElementById('edit-prod-descripcion').value = btn.dataset.descripcion;
+      abrirModal('modal-editar-producto');
     });
   });
 
@@ -135,15 +135,24 @@ document.getElementById('btn-guardar-producto').addEventListener('click', async 
     valoracion: parseFloat(document.getElementById('prod-valoracion').value) || 0,
     descripcion: document.getElementById('prod-descripcion').value
   };
-  const editId = document.getElementById('btn-guardar-producto').dataset.editId;
-  if (editId) {
-    await apiFetch(`/productos/${editId}`, { method: 'PUT', body: JSON.stringify(data) });
-    document.getElementById('btn-guardar-producto').textContent = 'Agregar';
-    delete document.getElementById('btn-guardar-producto').dataset.editId;
-  } else {
-    await apiFetch('/productos', { method: 'POST', body: JSON.stringify(data) });
-  }
+  await apiFetch('/productos', { method: 'POST', body: JSON.stringify(data) });
   document.querySelectorAll('#producto-form input').forEach(i => i.value = '');
+  cargarProductos();
+});
+
+document.getElementById('btn-guardar-editar-producto').addEventListener('click', async () => {
+  const id = document.getElementById('edit-prod-id').value;
+  const data = {
+    nombre: document.getElementById('edit-prod-nombre').value,
+    precio: parseFloat(document.getElementById('edit-prod-precio').value),
+    stock: parseInt(document.getElementById('edit-prod-stock').value),
+    categoria: document.getElementById('edit-prod-categoria').value,
+    valoracion: parseFloat(document.getElementById('edit-prod-valoracion').value) || 0,
+    descripcion: document.getElementById('edit-prod-descripcion').value
+  };
+  await apiFetch(`/productos/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  cerrarModal('modal-editar-producto');
+  mostrarToast('Producto actualizado', 'success');
   cargarProductos();
 });
 

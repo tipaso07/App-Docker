@@ -151,6 +151,7 @@ async function cargarMisPedidos() {
       <td>S/. ${p.boleta.montoTotal.toFixed(2)}</td>
       <td>${p.metodoPago}</td>
       <td>${p.direccionEntrega}</td>
+      <td>${p.repartidorId?.nombre || 'Sin asignar'}</td>
       <td>${new Date(p.fecha).toLocaleDateString()}</td>
       <td class="estado-${p.estado.replace(/\s/g, '\\ ')}">${p.estado}</td>
       <td>
