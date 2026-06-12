@@ -22,9 +22,34 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mongodb-datos';
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('Capa 2 conectada con exito a MongoDB'))
-    .catch(err => console.error('Error al conectar a MongoDB:', err));
+async function conectarMongoConReintentos(maxIntentos = 5) {
+    for (let i = 1; i <= maxIntentos; i++) {
+        try {
+            await mongoose.connect(MONGO_URI);
+            console.log('Capa2 conectada con exito a MongoDB');
+            return;
+        } catch (err) {
+            console.error(`Intento ${i}/${maxIntentos} - Error al conectar a MongoDB: ${err.message}`);
+            if (i === maxIntentos) throw err;
+            await new Promise(res => setTimeout(res, 3000));
+        }
+    }
+}
+
+conectarMongoConReintentos()
+    .catch(err => {
+        console.error('No se pudo conectar a MongoDB Tras varios intentos:', err.message);
+        process.exit(1);
+    });
+
+app.get('/api/health', (req, res) => {
+    const estadoMongo = mongoose.connection.readyState === 1 ? 'conectado' : 'desconectado';
+    res.json({
+        status: estadoMongo === 'conectado' ? 'healthy' : 'degradao',
+        morgo: estadoMongo,
+        timestamp: new Date().toISOString()
+    });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/productos', productoRoutes);
@@ -45,4 +70,10 @@ io.on('connection', (socket) => {
 const PORT = 3000;
 server.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM recibido, cerrando conexiones...');
+    await mongoose.connection.close();
+    server.close(() => process.exit(0));
 });
