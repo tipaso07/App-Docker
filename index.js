@@ -45,7 +45,7 @@ conectarMongoConReintentos()
 app.get('/api/health', (req, res) => {
     const estadoMongo = mongoose.connection.readyState === 1 ? 'conectado' : 'desconectado';
     res.json({
-        status: estadoMongo === 'conectado' ? 'healthy' : 'degradad',
+        status: estadoMongo === 'conectado' ? 'healthy' : 'degradado',
         mongo: estadoMongo,
         timestamp: new Date().toISOString()
     });
