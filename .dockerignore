@@ -1,7 +1,5 @@
 node_modules/
-ndm-debug.log
 .env
 mongo_data/
 .git
 .gitignore
-*.md
