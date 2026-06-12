@@ -19,23 +19,6 @@ function mostrarToast(mensaje, tipo = 'success') {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// ---- Sonido ----
-function reproducirSonido() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.4);
-  } catch (_) {}
-}
-
 // ---- Modal ----
 function abrirModal(id) {
   document.getElementById(id).classList.remove('hidden');
@@ -200,6 +183,16 @@ function verDetallePedido(id) {
     abrirModal('modal-detalle');
   });
 }
+
+// ---- Socket.io: escuchar cambios de estado en mis pedidos ----
+const socket = io();
+socket.on('estado_pedido_actualizado', (pedido) => {
+  if (pedido.clienteId === usuario.id || pedido.clienteId?._id === usuario.id) {
+    reproducirSonido();
+    mostrarToast(`Tu pedido ${pedido.boleta.numeroBoleta} cambió a: ${pedido.estado}`, 'info');
+    cargarMisPedidos();
+  }
+});
 
 cargarProductos();
 cargarMisPedidos();

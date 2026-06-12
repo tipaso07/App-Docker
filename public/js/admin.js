@@ -8,6 +8,16 @@ document.querySelectorAll('.sidebar a[data-section]').forEach(a => {
   });
 });
 
+// ---- Toast ----
+function mostrarToast(mensaje, tipo = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${tipo}`;
+  toast.textContent = mensaje;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
 // ---- Modal util ----
 function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }

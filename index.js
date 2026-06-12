@@ -16,6 +16,8 @@ const io = new Server(server, {
     cors: { origin: "*" } // Permite conexiones desde cualquier frontend (Capa 3)
 });
 
+app.set('io', io);
+
 // MIDDLEWARE
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));

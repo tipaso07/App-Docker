@@ -53,6 +53,10 @@ router.post('/', verificarToken, async (req, res) => {
     });
 
     const pedidoGuardado = await nuevoPedido.save();
+
+    const io = req.app.get('io');
+    io.emit('alerta_nuevo_pedido', pedidoGuardado);
+
     res.status(201).json(pedidoGuardado);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -78,6 +82,10 @@ router.put('/:id/estado', verificarToken, verificarAdmin, async (req, res) => {
     const { estado } = req.body;
     const pedido = await Pedido.findByIdAndUpdate(req.params.id, { estado }, { new: true });
     if (!pedido) return res.status(404).json({ error: 'Pedido no encontrado' });
+
+    const io = req.app.get('io');
+    io.emit('estado_pedido_actualizado', pedido);
+
     res.json(pedido);
   } catch (err) {
     res.status(500).json({ error: err.message });
