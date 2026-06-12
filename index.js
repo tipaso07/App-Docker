@@ -26,7 +26,7 @@ async function conectarMongoConReintentos(maxIntentos = 5) {
     for (let i = 1; i <= maxIntentos; i++) {
         try {
             await mongoose.connect(MONGO_URI);
-            console.log('Capa2 conectada con exito a MongoDB');
+            console.log('Capa 2 conectada con exito a MongoDB');
             return;
         } catch (err) {
             console.error(`Intento ${i}/${maxIntentos} - Error al conectar a MongoDB: ${err.message}`);
@@ -38,15 +38,15 @@ async function conectarMongoConReintentos(maxIntentos = 5) {
 
 conectarMongoConReintentos()
     .catch(err => {
-        console.error('No se pudo conectar a MongoDB Tras varios intentos:', err.message);
+        console.error('No se pudo conectar a MongoDB tras varios intentos:', err.message);
         process.exit(1);
     });
 
 app.get('/api/health', (req, res) => {
     const estadoMongo = mongoose.connection.readyState === 1 ? 'conectado' : 'desconectado';
     res.json({
-        status: estadoMongo === 'conectado' ? 'healthy' : 'degradao',
-        morgo: estadoMongo,
+        status: estadoMongo === 'conectado' ? 'healthy' : 'degradad',
+        mongo: estadoMongo,
         timestamp: new Date().toISOString()
     });
 });
