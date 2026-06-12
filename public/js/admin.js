@@ -25,18 +25,42 @@ let todosPedidos = [];
 async function cargarPedidos() {
   todosPedidos = await apiFetch('/pedidos');
   const tbody = document.getElementById('pedidos-tbody');
-  tbody.innerHTML = todosPedidos.map(p => `
-    <tr>
-      <td>${p.boleta.numeroBoleta}</td>
-      <td>${p.clienteId?.nombre || 'N/A'}</td>
-      <td>${p.repartidorId?.nombre || 'Sin asignar'}</td>
-      <td>S/. ${p.boleta.montoTotal.toFixed(2)}</td>
-      <td>${p.metodoPago}</td>
-      <td>${new Date(p.fecha).toLocaleDateString()}</td>
-      <td class="estado-${p.estado.replace(/\s/g, '\\ ')}">${p.estado}</td>
-      <td><button onclick='abrirEditarPedido("${p._id}")'>Editar</button></td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = todosPedidos.map(p => {
+    let btnAccion = '';
+    if (p.estado === 'Pendiente') {
+      btnAccion = `<button class="btn-accion-estado" data-id="${p._id}" data-estado="En Camino">→ En Camino</button>`;
+    } else if (p.estado === 'En Camino') {
+      btnAccion = `<button class="btn-accion-estado" data-id="${p._id}" data-estado="Entregado">→ Entregado</button>`;
+    } else if (p.estado === 'Entregado') {
+      btnAccion = `<button class="btn-accion-estado" disabled>✓ Entregado</button>`;
+    } else {
+      btnAccion = `<span class="estado-${p.estado}">${p.estado}</span>`;
+    }
+    return `
+      <tr>
+        <td>${p.boleta.numeroBoleta}</td>
+        <td>${p.clienteId?.nombre || 'N/A'}</td>
+        <td>${p.repartidorId?.nombre || 'Sin asignar'}</td>
+        <td>S/. ${p.boleta.montoTotal.toFixed(2)}</td>
+        <td>${p.metodoPago}</td>
+        <td>${new Date(p.fecha).toLocaleDateString()}</td>
+        <td class="estado-${p.estado.replace(/\s/g, '\\ ')}">${p.estado}</td>
+        <td>${btnAccion} <button onclick='abrirEditarPedido("${p._id}")'>Editar</button></td>
+      </tr>
+    `;
+  }).join('');
+
+  document.querySelectorAll('.btn-accion-estado').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const estado = btn.dataset.estado;
+      await apiFetch(`/pedidos/${id}/estado`, {
+        method: 'PUT',
+        body: JSON.stringify({ estado })
+      });
+      cargarPedidos();
+    });
+  });
 }
 
 async function abrirEditarPedido(id) {
@@ -65,6 +89,16 @@ async function abrirEditarPedido(id) {
   abrirModal('modal-editar-pedido');
 }
 
+// Auto-asignar primer repartidor al cambiar estado a "En Camino" en el modal
+document.getElementById('edit-pedido-estado').addEventListener('change', function () {
+  if (this.value === 'En Camino') {
+    const repSelect = document.getElementById('edit-pedido-repartidor');
+    if (!repSelect.value && repSelect.options.length > 1) {
+      repSelect.value = repSelect.options[1].value;
+    }
+  }
+});
+
 document.getElementById('btn-guardar-pedido').addEventListener('click', async () => {
   const id = document.getElementById('edit-pedido-id').value;
   const estado = document.getElementById('edit-pedido-estado').value;
@@ -75,10 +109,13 @@ document.getElementById('btn-guardar-pedido').addEventListener('click', async ()
     body: JSON.stringify({ estado })
   });
 
-  await apiFetch(`/pedidos/${id}/repartidor`, {
-    method: 'PUT',
-    body: JSON.stringify({ repartidorId })
-  });
+  // Solo si el admin eligió explícitamente un repartidor (no dejar vacío para que el backend auto-asigne)
+  if (repartidorId) {
+    await apiFetch(`/pedidos/${id}/repartidor`, {
+      method: 'PUT',
+      body: JSON.stringify({ repartidorId })
+    });
+  }
 
   cerrarModal('modal-editar-pedido');
   mostrarToast('Pedido actualizado', 'success');
