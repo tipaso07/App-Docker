@@ -48,6 +48,8 @@ socket.on('alerta_nuevo_pedido', (pedido) => {
 });
 socket.on('estado_pedido_actualizado', (pedido) => {
   if (pedido.repartidorId === usuario.id) {
+    reproducirSonido();
+    mostrarToast(`Pedido ${pedido.boleta.numeroBoleta} actualizado a: ${pedido.estado}`, 'info');
     cargarEntregas();
   }
 });
