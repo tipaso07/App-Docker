@@ -36,7 +36,6 @@ router.post('/', verificarToken, async (req, res) => {
 
     const pedidoGuardado = await nuevoPedido.save();
 
-    // Actualizar historial del cliente
     await Usuario.findByIdAndUpdate(clienteId, { $push: { historialCompras: pedidoGuardado._id } });
 
     const io = req.app.get('io');
@@ -80,7 +79,6 @@ router.put('/:id/estado', verificarToken, verificarAdmin, async (req, res) => {
     const { estado } = req.body;
     let update = { estado };
 
-    // Si pasa a "En Camino" y no tiene repartidor, asignar el que menos carga tenga
     if (estado === 'En Camino') {
       const pedidoActual = await Pedido.findById(req.params.id);
       if (!pedidoActual) return res.status(404).json({ error: 'Pedido no encontrado' });

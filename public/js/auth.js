@@ -1,6 +1,5 @@
 const API = '/api';
 
-// Auth state
 let token = localStorage.getItem('token');
 let usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
 
@@ -32,7 +31,6 @@ async function apiFetch(url, options = {}) {
   return data;
 }
 
-// Login page logic
 document.addEventListener('DOMContentLoaded', () => {
   if (window.location.pathname.endsWith('admin.html') || window.location.pathname.endsWith('cliente.html')) {
     if (!token) return window.location.href = '/';
@@ -40,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-logout')?.addEventListener('click', cerrarSesion);
     return;
   }
-  if (!document.getElementById('auth-form')) return; // not on login page
+  if (!document.getElementById('auth-form')) return;
 
   let isRegister = false;
   const form = document.getElementById('auth-form');
@@ -90,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (token) redirigirSegunRol();
 });
 
-// ---- Sonido global (dos tonos ascendentes) ----
 function reproducirSonido() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();

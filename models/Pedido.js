@@ -1,28 +1,26 @@
 const mongoose = require('mongoose');
 
 const PedidoSchema = new mongoose.Schema({
-    // Datos principales del Pedido
     clienteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
-    metodoPago: { type: String, required: true }, // Ej: 'Yape', 'Plin', 'Tarjeta'
-    estado: { type: String, default: 'Pendiente' }, // Pendiente, En Camino, Entregado, Cancelado
+    metodoPago: { type: String, required: true },
+    estado: { type: String, default: 'Pendiente' },
     fecha: { type: Date, default: Date.now },
 
-    // LA BOLETA (Estructura embebida con los productos comprados)
     boleta: {
-        numeroBoleta: { type: String, required: true, unique: true }, // Ej: B001-000045
-        rucTienda: { type: String, default: '20123456789' }, // RUC ficticio estilo Coolbox
+        numeroBoleta: { type: String, required: true, unique: true },
+        rucTienda: { type: String, default: '20123456789' },
         productos: [
             {
                 productoId: { type: String, required: true },
                 nombre: { type: String, required: true },
                 precioUnitario: { type: Number, required: true },
                 cantidad: { type: Number, required: true },
-                subtotal: { type: Number, required: true } // precioUnitario * cantidad
+                subtotal: { type: Number, required: true }
             }
         ],
-        montoGrabado: { type: Number, required: true }, // Total sin IGV
-        igv: { type: Number, required: true },          // El 18% del total
-        montoTotal: { type: Number, required: true }    // Lo que paga el cliente al final
+        montoGrabado: { type: Number, required: true },
+        igv: { type: Number, required: true },
+        montoTotal: { type: Number, required: true }
     },
 
     repartidorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', default: null, index: true },

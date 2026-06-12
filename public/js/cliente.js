@@ -9,7 +9,6 @@ document.querySelectorAll('.sidebar a[data-section]').forEach(a => {
   });
 });
 
-// ---- Toast ----
 function mostrarToast(mensaje, tipo = 'success') {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -19,7 +18,6 @@ function mostrarToast(mensaje, tipo = 'success') {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// ---- Modal ----
 function abrirModal(id) {
   document.getElementById(id).classList.remove('hidden');
 }
@@ -27,7 +25,6 @@ function cerrarModal(id) {
   document.getElementById(id).classList.add('hidden');
 }
 
-// ---- Productos ----
 let todosProductos = [];
 
 async function cargarProductos() {
@@ -65,7 +62,6 @@ function renderizarProductos() {
 document.getElementById('buscar-producto').addEventListener('input', renderizarProductos);
 document.getElementById('filtro-categoria').addEventListener('change', renderizarProductos);
 
-// ---- Carrito ----
 function agregarAlCarrito(id, nombre, precio, stockMax) {
   const cant = parseInt(document.getElementById(`cant-${id}`).value) || 1;
   const existente = carrito.find(i => i.id === id);
@@ -141,7 +137,6 @@ document.getElementById('btn-realizar-pedido').addEventListener('click', async (
   }
 });
 
-// ---- Mis Pedidos ----
 async function cargarMisPedidos() {
   const pedidos = await apiFetch('/pedidos');
   const tbody = document.getElementById('pedidos-tbody');
@@ -185,7 +180,6 @@ function verDetallePedido(id) {
   });
 }
 
-// ---- Socket.io: escuchar cambios de estado en mis pedidos ----
 const socket = io();
 socket.on('estado_pedido_actualizado', (pedido) => {
   if (pedido.clienteId === usuario.id || pedido.clienteId?._id === usuario.id) {

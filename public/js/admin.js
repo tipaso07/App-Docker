@@ -19,7 +19,6 @@ function mostrarToast(mensaje, tipo = 'success') {
 function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-// ---- PEDIDOS ----
 let todosPedidos = [];
 
 async function cargarPedidos() {
@@ -78,7 +77,6 @@ async function abrirEditarPedido(id) {
   document.getElementById('edit-pedido-total').textContent = pedido.boleta.montoTotal.toFixed(2);
   document.getElementById('edit-pedido-estado').value = pedido.estado;
 
-  // Cargar repartidores en el select
   const repSelect = document.getElementById('edit-pedido-repartidor');
   const usuarios = await apiFetch('/usuarios');
   const repartidores = usuarios.filter(u => u.rol === 'Repartidor');
@@ -89,7 +87,7 @@ async function abrirEditarPedido(id) {
   abrirModal('modal-editar-pedido');
 }
 
-// Auto-asignar primer repartidor al cambiar estado a "En Camino" en el modal
+
 document.getElementById('edit-pedido-estado').addEventListener('change', function () {
   if (this.value === 'En Camino') {
     const repSelect = document.getElementById('edit-pedido-repartidor');
@@ -109,7 +107,7 @@ document.getElementById('btn-guardar-pedido').addEventListener('click', async ()
     body: JSON.stringify({ estado })
   });
 
-  // Solo si el admin eligió explícitamente un repartidor (no dejar vacío para que el backend auto-asigne)
+
   if (repartidorId) {
     await apiFetch(`/pedidos/${id}/repartidor`, {
       method: 'PUT',
@@ -122,7 +120,7 @@ document.getElementById('btn-guardar-pedido').addEventListener('click', async ()
   cargarPedidos();
 });
 
-// ---- INVENTARIO ----
+
 async function cargarProductos() {
   const productos = await apiFetch('/productos');
   const tbody = document.getElementById('productos-tbody');
@@ -193,7 +191,7 @@ document.getElementById('btn-guardar-editar-producto').addEventListener('click',
   cargarProductos();
 });
 
-// ---- USUARIOS ----
+
 async function cargarUsuarios() {
   const usuarios = await apiFetch('/usuarios');
   const tbody = document.getElementById('usuarios-tbody');
