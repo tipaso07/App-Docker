@@ -1,4 +1,4 @@
-// ---- Sidebar navigation ----
+// ---- Sidebar ----
 document.querySelectorAll('.sidebar a[data-section]').forEach(a => {
   a.addEventListener('click', () => {
     document.querySelectorAll('.sidebar a').forEach(x => x.classList.remove('active'));
@@ -8,38 +8,45 @@ document.querySelectorAll('.sidebar a[data-section]').forEach(a => {
   });
 });
 
+// ---- Modal util ----
+function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+
 // ---- PEDIDOS ----
 async function cargarPedidos() {
   const pedidos = await apiFetch('/pedidos');
   const tbody = document.getElementById('pedidos-tbody');
-  tbody.innerHTML = pedidos.map(p => `
-    <tr>
-      <td>${p.boleta.numeroBoleta}</td>
-      <td>${p.clienteId?.nombre || 'N/A'}</td>
-      <td>S/. ${p.boleta.montoTotal.toFixed(2)}</td>
-      <td>${p.metodoPago}</td>
-      <td>${new Date(p.fecha).toLocaleDateString()}</td>
-      <td class="estado-${p.estado.replace(/\s/g, '\\ ')}">${p.estado}</td>
-      <td>
-        <select class="cambio-estado" data-id="${p._id}">
-          <option value="Pendiente" ${p.estado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
-          <option value="En Camino" ${p.estado === 'En Camino' ? 'selected' : ''}>En Camino</option>
-          <option value="Entregado" ${p.estado === 'Entregado' ? 'selected' : ''}>Entregado</option>
-          <option value="Cancelado" ${p.estado === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
-        </select>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = pedidos.map(p => {
+    let btnHtml = '';
+    if (p.estado === 'Pendiente') {
+      btnHtml = `<button class="btn-estado pendiente" onclick="cambiarEstado('${p._id}','En Camino')">→ En Camino</button>`;
+    } else if (p.estado === 'En Camino') {
+      btnHtml = `<button class="btn-estado en-camino" onclick="cambiarEstado('${p._id}','Entregado')">→ Entregado</button>`;
+    } else if (p.estado === 'Entregado') {
+      btnHtml = `<button class="btn-estado entregado" disabled>✓ Entregado</button>`;
+    } else {
+      btnHtml = `<span style="color:#a0aec0;font-size:13px;">${p.estado}</span>`;
+    }
+    return `
+      <tr>
+        <td>${p.boleta.numeroBoleta}</td>
+        <td>${p.clienteId?.nombre || 'N/A'}</td>
+        <td>S/. ${p.boleta.montoTotal.toFixed(2)}</td>
+        <td>${p.metodoPago}</td>
+        <td>${new Date(p.fecha).toLocaleDateString()}</td>
+        <td class="estado-${p.estado.replace(/\s/g, '\\ ')}">${p.estado}</td>
+        <td>${btnHtml}</td>
+      </tr>
+    `;
+  }).join('');
+}
 
-  document.querySelectorAll('.cambio-estado').forEach(sel => {
-    sel.addEventListener('change', async () => {
-      await apiFetch(`/pedidos/${sel.dataset.id}/estado`, {
-        method: 'PUT',
-        body: JSON.stringify({ estado: sel.value })
-      });
-      cargarPedidos();
-    });
+async function cambiarEstado(id, nuevoEstado) {
+  await apiFetch(`/pedidos/${id}/estado`, {
+    method: 'PUT',
+    body: JSON.stringify({ estado: nuevoEstado })
   });
+  cargarPedidos();
 }
 
 // ---- INVENTARIO ----
@@ -123,13 +130,12 @@ async function cargarUsuarios() {
 
   document.querySelectorAll('.btn-editar-user').forEach(btn => {
     btn.addEventListener('click', () => {
-      const nuevoRol = prompt(`Nuevo rol para ${btn.dataset.nombre} (Admin/Cliente/Repartidor):`, btn.dataset.rol);
-      if (nuevoRol && ['Admin', 'Cliente', 'Repartidor'].includes(nuevoRol)) {
-        apiFetch(`/usuarios/${btn.dataset.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({ rol: nuevoRol })
-        }).then(cargarUsuarios);
-      }
+      document.getElementById('edit-user-id').value = btn.dataset.id;
+      document.getElementById('edit-user-nombre').value = btn.dataset.nombre;
+      document.getElementById('edit-user-email').value = btn.dataset.email;
+      document.getElementById('edit-user-rol').value = btn.dataset.rol;
+      document.getElementById('edit-user-password').value = '';
+      abrirModal('modal-editar-usuario');
     });
   });
 
@@ -142,6 +148,21 @@ async function cargarUsuarios() {
     });
   });
 }
+
+document.getElementById('btn-guardar-usuario').addEventListener('click', async () => {
+  const id = document.getElementById('edit-user-id').value;
+  const data = {
+    nombre: document.getElementById('edit-user-nombre').value,
+    email: document.getElementById('edit-user-email').value,
+    rol: document.getElementById('edit-user-rol').value,
+  };
+  const password = document.getElementById('edit-user-password').value;
+  if (password) data.password = password;
+
+  await apiFetch(`/usuarios/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  cerrarModal('modal-editar-usuario');
+  cargarUsuarios();
+});
 
 cargarPedidos();
 cargarProductos();

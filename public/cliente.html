@@ -60,6 +60,36 @@
     <button class="close-cart" id="btn-cerrar-carrito">Cerrar</button>
   </div>
 
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Modal detalle pedido -->
+  <div class="modal-overlay hidden" id="modal-detalle">
+    <div class="modal">
+      <h2 id="detalle-boleta">Boleta</h2>
+      <p id="detalle-fecha" style="color:#718096;font-size:13px;margin-bottom:12px;"></p>
+      <div id="detalle-estado" style="margin-bottom:12px;"></div>
+      <div class="detalle-productos">
+        <table>
+          <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr></thead>
+          <tbody id="detalle-productos-tbody"></tbody>
+        </table>
+      </div>
+      <div class="detalle-totales">
+        <div>Subtotal: S/. <span id="detalle-subtotal">0.00</span></div>
+        <div>IGV (18%): S/. <span id="detalle-igv">0.00</span></div>
+        <div><strong>Total: S/. <span id="detalle-total">0.00</span></strong></div>
+      </div>
+      <p style="margin-top:12px;font-size:13px;color:#718096;">
+        <strong>Dirección:</strong> <span id="detalle-direccion"></span><br>
+        <strong>Método de pago:</strong> <span id="detalle-pago"></span>
+      </p>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModal('modal-detalle')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/auth.js"></script>
   <script src="/js/cliente.js"></script>
 </body>

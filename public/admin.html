@@ -52,6 +52,30 @@
       </div>
     </div>
   </div>
+  <!-- Modal editar usuario -->
+  <div class="modal-overlay hidden" id="modal-editar-usuario">
+    <div class="modal">
+      <h2>Editar Usuario</h2>
+      <input type="hidden" id="edit-user-id">
+      <label>Nombre</label>
+      <input type="text" id="edit-user-nombre">
+      <label>Email</label>
+      <input type="email" id="edit-user-email">
+      <label>Rol</label>
+      <select id="edit-user-rol">
+        <option value="Cliente">Cliente</option>
+        <option value="Admin">Administrador</option>
+        <option value="Repartidor">Repartidor</option>
+      </select>
+      <label>Nueva contraseña (dejar vacío para mantener)</label>
+      <input type="password" id="edit-user-password" placeholder="••••••••">
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModal('modal-editar-usuario')">Cancelar</button>
+        <button class="btn-primary" id="btn-guardar-usuario">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/auth.js"></script>
   <script src="/js/admin.js"></script>
 </body>
