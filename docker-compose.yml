@@ -1,5 +1,4 @@
 services:
-  #CAPA 1: Base de Datos (MongoDB)
   base-datos:
     image: mongo:latest
     container_name: mongodb-datos
@@ -8,13 +7,12 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: mongosh --eval 'db.adminCommand(\"ping\")' --quiet 2> /dev/null || exit 1
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 40s
 
-  # CAPA 2: LÏgica de Negocio (Tu servidor Node de Ventas)
   servidor-app:
     build: .
     container_name: node-aplicacion
@@ -27,7 +25,7 @@ services:
     environment:
       - MONGO_URI=mongodb://base-datos:27017/mongodb-datos
     healthcheck:
-      test: wget --spider -q -O - http://localhost:3000/api/health || exit 1
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
