@@ -1,9 +1,14 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const Pedido = require('./models/Pedido');
 const Usuario = require('./models/Usuario');
+const authRoutes = require('./routes/auth');
+const productoRoutes = require('./routes/productos');
+const pedidoRoutes = require('./routes/pedidos');
+const usuarioRoutes = require('./routes/usuarios');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,6 +18,7 @@ const io = new Server(server, {
 
 // MIDDLEWARE
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 🔌 CONEXIÓN A LA CAPA 1 (MongoDB en Docker)
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mongodb-datos';
@@ -20,6 +26,12 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mongodb-da
 mongoose.connect(MONGO_URI)
     .then(() => console.log('🔌 Capa 2 conectada con éxito a la Capa 1 (MongoDB en Docker)'))
     .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
+
+// RUTAS API
+app.use('/api/auth', authRoutes);
+app.use('/api/productos', productoRoutes);
+app.use('/api/pedidos', pedidoRoutes);
+app.use('/api/usuarios', usuarioRoutes);
 
 // RUTA REST DE PRUEBA
 app.get('/api/prueba', (req, res) => {

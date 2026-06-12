@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin - App Tienda</title>
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <div class="layout">
+    <nav class="sidebar">
+      <h3>Panel Admin</h3>
+      <div class="user-info" id="sidebar-user"></div>
+      <a class="active" data-section="pedidos">Pedidos</a>
+      <a data-section="inventario">Inventario</a>
+      <a data-section="usuarios">Usuarios</a>
+      <div class="logout"><a id="btn-logout">Cerrar Sesión</a></div>
+    </nav>
+    <div class="main-content">
+      <!-- PEDIDOS -->
+      <div class="section active" id="sec-pedidos">
+        <h1>Gestión de Pedidos</h1>
+        <table>
+          <thead><tr><th>Boleta</th><th>Cliente</th><th>Total</th><th>Método Pago</th><th>Fecha</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody id="pedidos-tbody"></tbody>
+        </table>
+      </div>
+      <!-- INVENTARIO -->
+      <div class="section" id="sec-inventario">
+        <h1>Inventario</h1>
+        <div class="form-inline" id="producto-form">
+          <input type="text" id="prod-nombre" placeholder="Nombre">
+          <input type="number" id="prod-precio" placeholder="Precio" step="0.01">
+          <input type="number" id="prod-stock" placeholder="Stock">
+          <input type="text" id="prod-categoria" placeholder="Categoría">
+          <input type="number" id="prod-valoracion" placeholder="Valoración" step="0.1" min="0" max="5">
+          <input type="text" id="prod-descripcion" placeholder="Descripción">
+          <button id="btn-guardar-producto">Agregar</button>
+        </div>
+        <table>
+          <thead><tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Valoración</th><th>Acciones</th></tr></thead>
+          <tbody id="productos-tbody"></tbody>
+        </table>
+      </div>
+      <!-- USUARIOS -->
+      <div class="section" id="sec-usuarios">
+        <h1>Gestión de Usuarios</h1>
+        <table>
+          <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Registro</th><th>Acciones</th></tr></thead>
+          <tbody id="usuarios-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

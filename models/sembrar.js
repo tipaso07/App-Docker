@@ -1,17 +1,7 @@
 const mongoose = require('mongoose');
+const Producto = require('./Producto');
 
-// Conexión al Mongo de tu Docker
 const MONGO_URI = 'mongodb://localhost:27017/mongodb-datos';
-
-const ProductoSchema = new mongoose.Schema({
-    nombre: String,
-    precio: Number,
-    stock: Number,
-    categoria: String,
-    valoracion: Number,
-    descripcion: String
-});
-const Producto = mongoose.model('Producto', ProductoSchema);
 
 // === DICCIONARIO DE DATOS REALES PARA COMBINACIÓN ===
 const marcas = ["Sony", "Apple", "Logitech", "Samsung", "Xiaomi", "JBL", "Asus", "Lenovo", "Philips", "Kingston"];

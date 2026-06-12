@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda - App Tienda</title>
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <div class="layout">
+    <nav class="sidebar">
+      <h3>Tienda</h3>
+      <div class="user-info" id="sidebar-user"></div>
+      <a class="active" data-section="productos">Productos</a>
+      <a data-section="mis-pedidos">Mis Pedidos</a>
+      <div class="logout"><a id="btn-logout">Cerrar Sesión</a></div>
+    </nav>
+    <div class="main-content">
+      <!-- PRODUCTOS -->
+      <div class="section active" id="sec-productos">
+        <h1>Productos</h1>
+        <div class="form-inline">
+          <select id="filtro-categoria">
+            <option value="">Todas las categorías</option>
+          </select>
+          <input type="text" id="buscar-producto" placeholder="Buscar producto...">
+        </div>
+        <div class="productos-grid" id="productos-grid"></div>
+      </div>
+      <!-- MIS PEDIDOS -->
+      <div class="section" id="sec-mis-pedidos">
+        <h1>Mis Pedidos</h1>
+        <table>
+          <thead><tr><th>Boleta</th><th>Total</th><th>Método Pago</th><th>Dirección</th><th>Fecha</th><th>Estado</th><th>Detalle</th></tr></thead>
+          <tbody id="pedidos-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB Carrito -->
+  <button class="cart-fab" id="cart-fab">
+    🛒
+    <span class="badge" id="cart-count">0</span>
+  </button>
+
+  <!-- Panel Carrito -->
+  <div class="cart-panel hidden" id="cart-panel">
+    <h3>Carrito de Compras</h3>
+    <div id="cart-items"></div>
+    <div class="cart-total" id="cart-total">Total: S/. 0.00</div>
+    <select id="cart-metodo-pago">
+      <option value="Yape">Yape</option>
+      <option value="Plin">Plin</option>
+      <option value="Tarjeta">Tarjeta</option>
+      <option value="Efectivo">Efectivo</option>
+    </select>
+    <input type="text" id="cart-direccion" placeholder="Dirección de entrega">
+    <button id="btn-realizar-pedido">Realizar Pedido</button>
+    <button class="close-cart" id="btn-cerrar-carrito">Cerrar</button>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/cliente.js"></script>
+</body>
+</html>
