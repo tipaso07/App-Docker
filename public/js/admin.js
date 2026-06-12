@@ -41,6 +41,7 @@ async function cargarPedidos() {
       <tr>
         <td>${p.boleta.numeroBoleta}</td>
         <td>${p.clienteId?.nombre || 'N/A'}</td>
+        <td>${p.repartidorId?.nombre || 'Sin asignar'}</td>
         <td>S/. ${p.boleta.montoTotal.toFixed(2)}</td>
         <td>${p.metodoPago}</td>
         <td>${new Date(p.fecha).toLocaleDateString()}</td>

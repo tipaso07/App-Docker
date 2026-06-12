@@ -25,9 +25,11 @@ const PedidoSchema = new mongoose.Schema({
         montoTotal: { type: Number, required: true }    // Lo que paga el cliente al final
     },
 
-    // Logística Express (Para el Rappi / Repartidor)
-    repartidorId: { type: String, default: null },
+    repartidorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', default: null, index: true },
     direccionEntrega: { type: String, required: true }
 });
+
+PedidoSchema.index({ clienteId: 1 });
+PedidoSchema.index({ estado: 1 });
 
 module.exports = mongoose.model('Pedido', PedidoSchema);

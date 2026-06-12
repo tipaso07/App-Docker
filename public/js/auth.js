@@ -125,6 +125,8 @@ function reproducirSonido() {
 function redirigirSegunRol() {
   if (usuario.rol === 'Admin') {
     window.location.href = '/admin.html';
+  } else if (usuario.rol === 'Repartidor') {
+    window.location.href = '/repartidor.html';
   } else {
     window.location.href = '/cliente.html';
   }
